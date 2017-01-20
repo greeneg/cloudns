@@ -4,7 +4,7 @@ This is the CloudNS project Git repo for YggdrasilSoft.
 
 We do all development of the CloudNS appliance in the open.
 
-# What is CloudNS
+# What is CloudNS?
 
 CloudNS is a network services appliance built on top of Linux with Perl, Ruby, and Go.
 
