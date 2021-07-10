@@ -1,0 +1,537 @@
+{
+    "swagger": "2.0",
+    "info": {
+      "description": "This is the CloudNS API defined in Swagger",
+      "version": "0.0.1",
+      "title": "CloudNS - Name Server and Dynamic Address Service",
+      "contact": {
+        "email": "greeneg@yggdrasilsoft.com"
+      },
+      "license": {
+        "name": "Apache Public License, version 2"
+      }
+    },
+    "basePath": "/api/v1",
+    "tags": [
+      {
+        "name": "auth",
+        "description": "Authentication"
+      },
+      {
+        "name": "config",
+        "description": "The system configuration"
+      },
+      {
+        "name": "dhcp",
+        "description": "End-points related to DHCP"
+      },
+      {
+        "name": "dns",
+        "description": "End-points related to DNS"
+      },
+      {
+        "name": "logging",
+        "description": "End-points related to logging"
+      },
+      {
+        "name": "service health",
+        "description": "Systems service health"
+      },
+      {
+        "name": "zone",
+        "description": "DNS Zone definition"
+      }
+    ],
+    "schemes": [
+      "https"
+    ],
+    "paths": {
+      "/config": {
+        "get": {
+          "tags": [ "config" ],
+          "summary": "Return a JSON representation of the complete CloudNS service configuration",
+          "description": "This API endpoint allows a client to retrieve the complete CloudNS server configuration, as represented in JSON. This does not include subnet or host DHCP definition records nor DNS zone records",
+          "operationId": "get_cloudns_service_configuration",
+          "produces": [ "application/json" ],
+          "responses": {
+            "200": {
+              "description": "Successful operation",
+              "schema": {
+                "$ref": "#/definitions/config"
+              }
+            },
+            "401": {
+              "description": "Unauthorized",
+              "schema": {
+                "$ref": "#/definitions/unauthorized"
+              }
+            }
+          },
+          "security": [
+            {
+              "readApiKey": []
+            }
+          ]
+        }
+      },
+      "/dhcpd/config": {
+        "get": {
+          "tags": [ "config", "dhcp" ],
+          "summary": "Return a JSON representation of the DHCP server configuration",
+          "description": "This API endpoint allows a client to retrieve the complete DHCP server configuration, as represented in JSON. This does not include subnet or host definition records",
+          "operationId": "get_dhcp_service_configuration",
+          "produces": [ "application/json" ],
+          "responses": {
+            "200": {
+              "description": "Successful operation",
+              "schema": {
+                "$ref": "#/definitions/dhcpd/config"
+              }
+            },
+            "401": {
+              "description": "Unauthorized",
+              "schema": {
+                "$ref": "#/definitions/unauthorized"
+              }
+            }
+          },
+          "security": [
+            {
+              "readApiKey": []
+            }
+          ]
+        }
+      },
+      "/named/config": {
+        "get": {
+          "tags": [ "config", "dns" ],
+          "summary": "Return a JSON representation of the BIND server configuration",
+          "description": "This API endpoint allows a client to retrieve the complete BIND service configuration, as represented in JSON. This does not include the zone records",
+          "operationId": "get_named_service_configuration",
+          "produces": [ "application/json" ],
+          "responses": {
+            "200": {
+              "description": "Successful operation",
+              "schema": {
+                "$ref": "#/definitions/named/config"
+              }
+            },
+            "401": {
+              "description": "Unauthorized",
+              "schema": {
+                "$ref": "#/definitions/unauthorized"
+              }
+            }
+          },
+          "security": [
+            {
+              "readApiKey": []
+            }
+          ]
+        }
+      },
+      "/named/config/logging": {},
+      "/named/config/logging/channels": {},
+      "/named/config/logging/channels/{channel}": {},
+      "/named/config/logging/categories": {},
+      "/named/config/logging/categories/{category}": {},
+      "/named/config/options": {},
+      "/named/config/options/listen": {},
+      "/named/config/options/forwarders": {},
+      "/named/config/security": {},
+      "/named/config/security/acls": {},
+      "/named/config/security/acls/{view}": {},
+      "/named/config/views": {},
+      "/named/config/views/{view}": {},
+      "/named/config/views/{view}/{zone}": {},
+      "/health": {
+        "get": {
+          "tags": [
+            "service health"
+          ],
+          "summary": "Return service health status",
+          "description": "This endpoint returns the service's health information",
+          "operationId": "get_service_health",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": "Service is healthy",
+              "schema": {
+                "$ref": "#/definitions/status"
+              }
+            }
+          },
+          "security": []
+        }
+      },
+      "/login": {},
+      "/logout": {},
+      "/zone": {}
+    },
+    "securityDefinitions": {
+      "readApiKey": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-Auth-RO-Token"
+      },
+      "writeApiKey": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-Auth-R@-Token"
+      }
+    },
+    "definitions": {
+      "status": {
+        "type": "object",
+        "required": [
+          "status",
+          "status_msg",
+          "extended_status"
+        ],
+        "properties": {
+          "status": {
+            "type": "integer",
+            "description": "The numeric status number. 200 is healthy, 500 is unhealthy"
+          },
+          "status_msg": {
+            "type": "string",
+            "enum": [
+              "OK",
+              "UNHEALTHY"
+            ],
+            "description": "Short status string for the health of the system"
+          },
+          "extended_status": {
+            "type": "string",
+            "description": "A human-friendly message that identifies what is potentially the cause of the system being unhealthy. If the system is healthy, this property is empty"
+          }
+        }
+      },
+      "unauthorized": {
+        "type": "object",
+        "required": [
+          "status",
+          "status_msg",
+          "extended_status"
+        ],
+        "headers": {
+          "WWW_Authentication": {
+            "type": "string"
+          }
+        },
+        "properties": {
+          "status": {
+            "type": "integer",
+            "description": "The numeric status number. This will always return 401",
+            "default": 401
+          },
+          "status_msg": {
+            "type": "string",
+            "description": "The short description of the error or status",
+            "default": "unauthorized"
+          },
+          "extended_status": {
+            "type": "string",
+            "description": "A human-friendly message that explains why the endpoint is unavailable",
+            "default": "The supplied authentication information is invalid"
+          }
+        }
+      },
+      "cdj": {
+        "type": "object",
+        "required": [
+          "appId",
+          "correlationId",
+          "hcoUri",
+          "offering",
+          "osFamily",
+          "osVersion",
+          "adminUsers",
+          "environment",
+          "isSql",
+          "ipAddress",
+          "netmask",
+          "gateway",
+          "dnsSearch",
+          "hostname",
+          "domain",
+          "dnsServers",
+          "isPhysical"
+        ],
+        "properties": {
+          "location": {
+            "type": "string",
+            "description": "The site code of the datacenter or building the system will reside in",
+            "required": false,
+            "example": "edc1"
+          },
+          "backupSolution": {
+            "type": "string",
+            "description": "Which backup solution to use for the system",
+            "required": false,
+            "example": "tsm",
+            "default": "veeam",
+            "enum": [
+              "tsm",
+              "veeam",
+              "none"
+            ]
+          },
+          "appId": {
+            "type": "integer",
+            "description": "The application or service ID an application is registered into SACM with",
+            "required": true,
+            "example": 123456
+          },
+          "timeZone": {
+            "type": "string",
+            "description": "The timezone that the host should be configured with",
+            "required": false,
+            "default": "America/Detroit",
+            "example": "UTC"
+          },
+          "basePolicy": {
+            "type": "string",
+            "desription": "The Chef policy package that should be installed on the machine. On Windows it defaults to 'pol/chef-apom', and Linux 'aos/chef-base'",
+            "required": false,
+            "example": "aos/chef-base"
+          },
+          "correlationId": {
+            "type": "string",
+            "description": "The correlation ID that should be used to identify the build of an instance in logs",
+            "required": true,
+            "format": "uuid",
+            "example": "d2f406f6-d4c2-4968-b9d8-af0ba642274e"
+          },
+          "hcoUri": {
+            "type": "string",
+            "description": "The URL where to find the HabConfigOptions.json",
+            "required": true,
+            "example": "https://www.objectstore.exampl.com/hco/service/habConfigOptions.json"
+          },
+          "offering": {
+            "type": "string",
+            "description": "The base offering that the instance is part of, APOM, PHYSICAL, REDHAT, SPOM, or SPSM",
+            "required": true,
+            "enum": [
+              "apom",
+              "redhat",
+              "spom",
+              "spsm",
+              "physical",
+              "plantone_vm",
+              "plantone_phy",
+              "plant_vm",
+              "plant_phy"
+            ]
+          },
+          "osFamily": {
+            "type": "string",
+            "description": "The operating system family that should be installed on the instance",
+            "required": true,
+            "enum": [
+              "linux",
+              "windows"
+            ]
+          },
+          "osVersion": {
+            "type": "string",
+            "description": "The version of the operating system to install on the instance",
+            "required": true,
+            "enum": [
+              "2012",
+              "2016",
+              "2019",
+              "7.6",
+              "7.7",
+              "11.4",
+              "12.3",
+              "15.1"
+            ],
+            "example": "12.3"
+          },
+          "adminUsers": {
+            "type": "array",
+            "description": "A list of users that should be created as administrative accounts on an instance",
+            "required": true,
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "example": [
+              "localadmin"
+            ]
+          },
+          "environment": {
+            "type": "string",
+            "description": "The base environment that an instance is hosted in, whether it be Canary, Dev, QA, RC, or Prod",
+            "required": true,
+            "enum": [
+              "dev",
+              "qa",
+              "prod",
+              "canary",
+              "rc"
+            ]
+          },
+          "isSql": {
+            "type": "boolean",
+            "description": "Whether this instance runs SQL or not",
+            "required": true,
+            "example": false
+          },
+          "sqlVariant": {
+            "type": "string",
+            "description": "What type of SQL installation this instance runs",
+            "required": false,
+            "enum": [
+              "none",
+              "standalone",
+              "always-on"
+            ],
+            "default": "standalone"
+          },
+          "gMsaUser": {
+            "type": "string",
+            "description": "The GMSA to use for ownership of SQL databases and IIS sites",
+            "required": false
+          },
+          "ipAddress": {
+            "type": "string",
+            "description": "The IP address that the instance should use",
+            "required": true,
+            "format": "ipv4",
+            "example": "10.10.10.10"
+          },
+          "netmask": {
+            "type": "integer",
+            "description": "The integer bitmask the instance should use",
+            "required": true,
+            "minimum": 0,
+            "maximum": 32,
+            "example": 24
+          },
+          "gateway": {
+            "type": "string",
+            "format": "ipv4",
+            "description": "The gateway IP address the instance should use",
+            "required": true,
+            "example": "10.10.10.1"
+          },
+          "dnsSearch": {
+            "type": "array",
+            "description": "An array of domain strings to use by the instance to search DNS",
+            "required": true,
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "maxItems": 6,
+            "example": [
+              "hosts.cloud.example.com",
+              "servers.example.com",
+              "example.com"
+            ]
+          },
+          "hostname": {
+            "type": "string",
+            "description": "The short name the instance should use",
+            "required": true,
+            "example": "myhost"
+          },
+          "domain": {
+            "type": "string",
+            "description": "The domain name the instance should use",
+            "required": true,
+            "example": "example.com"
+          },
+          "dnsServers": {
+            "type": "array",
+            "description": "The DNS servers to use by the instance",
+            "required": true,
+            "items": {
+              "type": "string",
+              "format": "ipv4"
+            },
+            "minItems": 1,
+            "maxItems": 3,
+            "example": [
+              "10.10.10.200",
+              "10.10.10.201"
+            ]
+          },
+          "isPhysical": {
+            "type": "boolean",
+            "description": "Whether the instance is a physical system or virtual machine",
+            "required": true,
+            "example": false
+          },
+          "habServiceHealthAttempts": {
+            "type": "integer",
+            "description": "Number of attempts to make for checking a service's health before erroring out",
+            "required": false,
+            "default": 1800,
+            "minimum": 1800,
+            "maximum": 5400,
+            "example": 1800
+          },
+          "habServiceHealthDelaySeconds": {
+            "type": "integer",
+            "description": "The number of seconds between health checks",
+            "required": false,
+            "default": 10,
+            "minimum": 10,
+            "maximum": 30,
+            "example": 10
+          },
+          "sqlSCOMAgent": {
+            "type": "boolean",
+            "description": "OPTIONAL: If the machine is an SQL instance, whether to enable the SCOM agent. Defaults to false",
+            "required": false,
+            "default": false,
+            "example": false
+          },
+          "optionalPackages": {
+            "type": "array",
+            "required": false,
+            "description": "A list of extra packages that should be added to the generated JSON output",
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "coreapps/motd-builder",
+              "coreapps/patchmonger"
+            ]
+          },
+          "globalUpdateStrategy": {
+            "type": "string",
+            "description": "The global setting for package update strategies. In distributed environments, this should be set to 'none'",
+            "required": false,
+            "enum": [
+              "at-once",
+              "none",
+              "rolling"
+            ],
+            "default": "at-once"
+          },
+          "isPrintServer": {
+            "type": "boolean",
+            "description": "Sets whether the requested system is a print server. This will automatically set the security policy and appropriate fields in the config_data.json to allow automation to correctly configure the host as such",
+            "required": false,
+            "default": false
+          }
+        }
+      }
+    },
+    "externalDocs": {
+      "description": "Find out more at https://github.ford.com/NGSE/hco2cdj-server",
+      "url": "https://github.ford.com/NGSE/hco2cdj-server"
+    }
+  
+}
